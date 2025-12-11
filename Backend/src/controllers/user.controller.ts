@@ -118,9 +118,9 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
     })
 
     if(!user){
-        throw new ApiError(404, "User does not exists")
+        throw new ApiError(404, "User don't exist")
     }
-
+    console.log("User found")
     // Using the custom method we've defined in the user model
     const isPasswordValid = await user.isPasswordCorrect(password)
 
@@ -134,7 +134,7 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
 
     // but before sending the user's information in the cookies remove the unwanted fields like password and refreshToken
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
-
+    console.log("Loggedd in")
     
 
     return res
