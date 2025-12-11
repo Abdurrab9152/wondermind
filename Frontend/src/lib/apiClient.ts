@@ -14,7 +14,7 @@ const apiClient = axios.create({
 
 const loginUser = (data: any) => {
     
-    return apiClient.post('/auth/login',{identifier: data.identifier, password: data.password})
+    return apiClient.post('/user/login',{identifier: data.identifier, password: data.password})
 }
 
 
@@ -27,7 +27,7 @@ const registerUser = (data: any) => {
     formData.append("password",data.password)
     if(data?.avatar) formData.append("avatar",data.avatar)
 
-    return apiClient.post('/auth/register',formData)
+    return apiClient.post('/user/register',formData)
     } catch (error) {
         console.log(error)
     }
@@ -37,7 +37,7 @@ const registerUser = (data: any) => {
 
 
 const logoutUser = () => {
-    return apiClient.post(`/auth/logout`)
+    return apiClient.post(`/user/logout`)
 }
 
 

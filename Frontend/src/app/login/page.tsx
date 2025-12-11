@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import TopBar from "../../../components/TopBar";
 import Footer from "../../../components/Footer";
 import axios from "axios";
+import { requestHandler } from "@/utils";
+import { loginUser } from "@/lib/apiClient";
 
 const LoginPage: React.FC = () => {
   const [emailInput, setEmailInput] = useState<string>("");
@@ -19,21 +21,26 @@ const LoginPage: React.FC = () => {
   }, []);
 
   const handleLogin = async () => {
-    setLoading(true);
-    setLoginError("");
-    try {
-      const res = await axios.post("http://localhost:5000/api/login", {
-        email: emailInput,
-        password: passwordInput,
-      });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("userName", res.data.userName);
-      router.push("/profile");
-    } catch {
-      setLoginError("Invalid credentials, try again.");
-    } finally {
-      setLoading(false);
-    }
+    requestHandler(
+      async() => await loginUser({ identifier : emailInput, password : passwordInput}),
+      setLoading,
+      (res) => {
+       
+        if(res.statusCode == 404){
+          setLoginError(res.message)
+        }
+        router.push('/')
+        console.log(res.message)
+      },
+      (err) => {
+        // @ts-ignore
+        if(err?.statusCode == 404){
+          // @ts-ignore
+          setLoginError(err.message)
+        }
+        console.log(err)
+      }
+    )
   };
 
   return (

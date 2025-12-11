@@ -5,6 +5,8 @@ import TopBar from "../../../components/TopBar";
 import Footer from "../../../components/Footer";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { requestHandler } from "@/utils";
+import { registerUser } from "@/lib/apiClient";
 
 interface Dot {
   top: number;
@@ -13,7 +15,9 @@ interface Dot {
 
 const SignupPage: React.FC = () => {
   const [nameInput, setNameInput] = useState<string>("");
+  const [usernameInput, setusernameInput] = useState("")
   const [emailInput, setEmailInput] = useState<string>("");
+
   const [passwordInput, setPasswordInput] = useState<string>("");
   const [signupError, setSignupError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -29,23 +33,23 @@ const SignupPage: React.FC = () => {
   }, []);
 
   const handleSignup = async () => {
-    setLoading(true);
-    setSignupError("");
-    try {
-      const res = await axios.post("http://localhost:5000/api/signup", {
-        name: nameInput,
-        email: emailInput,
-        password: passwordInput,
-      });
+   requestHandler(
+    // @ts-ignore 
+    async() => await registerUser({fullName : nameInput, username : usernameInput, email : emailInput, password : passwordInput}),
+    setLoading,
+    (res) => {
+      console.log(res.message)
+      router.push('/login')
+    },
+    (err) => {
+      // @ts-ignore
+      if(err.statusCode == 404){
+        // @ts-ignore
+        setSignupError(err.message)
+      }
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("userName", res.data.userName);
-      router.push("/profile");
-    } catch {
-      setSignupError("Signup failed. Try again.");
-    } finally {
-      setLoading(false);
     }
+   )
   };
 
   return (
@@ -90,9 +94,17 @@ const SignupPage: React.FC = () => {
 
           <input
             type="text"
-            placeholder="Name"
+            placeholder="Enter Full Name"
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
+            className="w-full p-3 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 transition animate-fadeInUp"
+          />
+
+          <input
+            type="text"
+            placeholder="Enter username"
+            value={usernameInput}
+            onChange={(e) => setusernameInput(e.target.value)}
             className="w-full p-3 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 transition animate-fadeInUp"
           />
 

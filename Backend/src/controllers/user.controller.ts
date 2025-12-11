@@ -25,6 +25,7 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
 
     
 
+    console.log(isExistingUser)
     if(isExistingUser){
         throw new ApiError(409, "User with Email or Username already exists")
     }
@@ -126,8 +127,8 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
     if(!isPasswordValid){
         throw new ApiError(401, "Password is Incorrect")
     }
-    user.lastlogin = new Date()
-    await user.save();
+   
+  
     // collect the refresh and access token from our function
     const{ accessToken } = await generateAccessToken(user._id)
 
@@ -157,6 +158,7 @@ const logoutUser = asyncHandler(async(req: Request, res: Response) => {
     // and also to clear the refresh token from the user's database
     // Just because of using this req.user = user in our verifyJWT middleware now we have access of current logged in user's document
 
+    // @ts-ignore
     await User.findByIdAndUpdate(req.user?._id,
         {   
             // This removes the field from the document
@@ -223,10 +225,18 @@ const logoutUser = asyncHandler(async(req: Request, res: Response) => {
     
 // })
 
+const getuserinfo = asyncHandler(async(req: Request, res: Response) => {
+    //@ts-ignore
+    const getUserInfo = await User.findById(req?.user._id).select('-password')
 
+    if(!getUserInfo) throw new ApiError(404, "User not found")
+
+    return res.status(200).json(new ApiResponse(200,getUserInfo, "User data fetched successfully."))
+})
 
 export {
     getAllUsers,
+    getuserinfo,
     loginUser,
     registerUser,
     logoutUser

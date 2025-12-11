@@ -20,6 +20,7 @@ export const saveTrip = asyncHandler(async(req: Request, res : Response) => {
     }
 
     const saveTrip = await SavedTrips.create({
+        // @ts-ignore
         userId : req.user?._id,
         name,
         description,
@@ -45,6 +46,7 @@ export const removeTrip = asyncHandler(async(req: Request, res: Response) => {
     
 
     const isTripExist = await SavedTrips.findOne({
+        // @ts-ignore
         userId : req.user?._id,
         _id : tripId
     })
@@ -59,3 +61,13 @@ export const removeTrip = asyncHandler(async(req: Request, res: Response) => {
 })
 
 
+export const getAllSaveTrip = asyncHandler(async(req: Request, res: Response) => {
+    const savedTrips = SavedTrips.find({
+        // @ts-ignore
+        userId : req?.user?._id
+    })
+
+    if(!savedTrips) return res.status(200).json(new ApiResponse(200, [], "No Saved trips found"))
+
+    return res.status(200).json(new ApiResponse(200, savedTrips, "Saved trips fetched successfully."))
+})

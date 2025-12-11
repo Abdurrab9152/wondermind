@@ -27,8 +27,10 @@ export const searchTrip = asyncHandler(async(req: Request, res: Response) => {
 
     return {
       ...place,
-      lat: coords.lat,
-      lng: coords.lng,
+      // @ts-ignore
+      lat: coords?.lat,
+      // @ts-ignore
+      lng: coords?.lng,
     };
   })
 );
@@ -58,30 +60,13 @@ function extractPlacesFromLLM(rawString: string) {
 
 
 export async function getCoordinates(placeName: string, cityName = "") {
-  try {
-    // Combine place + city for better accuracy
-    const query = `${placeName} ${cityName}`.trim();
-
-    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(
-      query
-    )}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
-
-   
-    const response = await axios.get(url);
-     console.log(response)
-
-    // If Google can't find the place
-    if (!response.data.results || response.data.results.length === 0) {
-      console.warn(`⚠ No coordinates found for: ${placeName}`);
-      return { lat: null, lng: null };
-    }
-
-    const { lat, lng } = response.data.results[0].geometry.location;
-
-    return { lat, lng };
-  } catch (error) {
-    // @ts-ignore
-    console.error("❌ Error fetching coordinates:", error.message);
-    return { lat: null, lng: null };
-  }
+  async function getCoordinates(place: string) {
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json`);
+  
+  const data = await res.json();
+  console.log("Response data",data)
+  return { lat: data[0].lat, lon: data[0].lon };
+ 
 }
+}
+    
